@@ -1,0 +1,14 @@
+
+{$DOMAIN} {
+	redir /docs /docs/ permanent
+	redir /api /api/ permanent
+
+	handle_path /docs/* {
+		reverse_proxy http://api-docs
+	}
+	handle_path /api/* {
+		reverse_proxy http://mock-backend:8002
+	}
+
+	reverse_proxy http://frontend:8000
+}

@@ -1,0 +1,54 @@
+
+services:
+  frontend:
+    image: ghcr.io/se-uulm/snowballr-frontend:latest-dev
+    environment:
+      PORT: 8000
+      PUBLIC_API_BASE_URL: "https://${DOMAIN}/api"
+    networks:
+      - snowballr-network
+      
+  api-docs:
+    image: ghcr.io/se-uulm/snowballr-api/docs:v0.2.0
+    hostname: "api-docs"
+    networks:
+      - snowballr-network
+
+  mock-backend:
+    image: ghcr.io/se-uulm/snowballr-mock-backend:main
+    environment:
+      GRPC_WEB_PORT: 8002
+      ENABLE_DUMMY_ADMIN: true
+      EXAMPLE_DATA_FILE: "standardData.ts"
+    networks:
+      - snowballr-network
+
+  caddy:
+    image: caddy:2.10.0
+    environment:
+      DOMAIN: ${DOMAIN:?error}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ${WORK_DIR:?error}/Caddyfile:/etc/caddy/Caddyfile
+      - ${WORK_DIR:?error}/runtime/caddy/data:/data
+      - ${WORK_DIR:?error}/runtime/caddy/config:/config
+    networks:
+      - snowballr-network
+      - snowballr-host
+
+networks:
+  snowballr-network:
+    name: snowballr-network
+    driver: ipvlan
+    internal: true
+    external: false
+    
+  snowballr-host:
+    name: snowballr-host
+    driver: bridge
+    internal: false
+    external: false
+    

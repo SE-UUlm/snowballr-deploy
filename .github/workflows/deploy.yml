@@ -1,0 +1,31 @@
+name: Deploy
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  snowballr-deploy:
+    name: Deploy to Remote Server
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        run: |
+            mkdir -p ~/.ssh
+            echo "Host *" >> ~/.ssh/config
+            echo -e "\tUserKnownHostsFile /dev/null" >> ~/.ssh/config
+            echo -e "\tStrictHostKeyChecking no" >> ~/.ssh/config
+            echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+            chmod 600 ~/.ssh/id_rsa
+
+      # - name: Stop Previous Deployment
+      #   run: ssh "${{ vars.REMOTE_USER }}@${{ vars.REMOTE_DOMAIN }}" -- docker compose -p snowballr-deploy down
+
+      - name: Copy Caddy Config
+        run: scp ./Caddyfile "${{ vars.REMOTE_USER }}@${{ vars.REMOTE_DOMAIN }}:${{ vars.WORK_DIR }}/"
+
+      - name: Deploy Using Docker Compose
+        run: WORK_DIR="${{ vars.WORK_DIR }}" DOMAIN="${{ vars.REMOTE_DOMAIN }}" DOCKER_HOST="ssh://${{ vars.REMOTE_USER }}@${{ vars.REMOTE_DOMAIN }}" docker compose up -d
