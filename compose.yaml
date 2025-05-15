@@ -9,7 +9,7 @@ services:
       - snowballr-network
       
   api-docs:
-    image: ghcr.io/se-uulm/snowballr-api/docs:v0.2.0
+    image: ghcr.io/se-uulm/snowballr-api/docs:main
     hostname: "api-docs"
     networks:
       - snowballr-network
