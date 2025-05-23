@@ -38,4 +38,4 @@ jobs:
         run: scp ./Caddyfile "${{ vars.REMOTE_USER }}@${{ vars.REMOTE_DOMAIN }}:${{ vars.WORK_DIR }}/"
 
       - name: Deploy Using Docker Compose
-        run: WORK_DIR="${{ vars.WORK_DIR }}" DOMAIN="${{ vars.REMOTE_DOMAIN }}" DOCKER_HOST="ssh://${{ vars.REMOTE_USER }}@${{ vars.REMOTE_DOMAIN }}" docker compose up -d
+        run: WORK_DIR="${{ vars.WORK_DIR }}" DOMAIN="${{ vars.REMOTE_DOMAIN }}" DOCKER_HOST="ssh://${{ vars.REMOTE_USER }}@${{ vars.REMOTE_DOMAIN }}" docker compose up -d --pull always
